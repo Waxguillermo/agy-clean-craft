@@ -1,0 +1,20 @@
+[project]
+name = "agy-clean-craft"
+version = "0.1.0"
+description = "Global Antigravity rules and skills for zero-slop Python (uv), visual 3-pillar READMEs, and clean git shipping."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+agy-sync = "agy_clean_craft.cli:main"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "ruff>=0.9.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
