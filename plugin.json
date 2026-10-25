@@ -1,3 +1,12 @@
 {
-  "name": "agy-clean-craft"
+  "name": "agy-clean-craft",
+  "displayName": "AGY Clean Craft",
+  "version": "0.2.0",
+  "description": "Enforces uv-first Python, eliminates throwaway .py scripts and AI code slop, and standardizes visual 3-pillar READMEs and pre-push code reviews.",
+  "logo": "assets/logo.svg",
+  "suggestedPrompts": [
+    "/clean-ship Run the 5-step pre-push hygiene check and code-janitor review",
+    "/readme-craft Craft or upgrade README.md using the 3-pillar visual standard",
+    "Audit this repository for throwaway scripts, AI code slop, and uv compliance"
+  ]
 }
