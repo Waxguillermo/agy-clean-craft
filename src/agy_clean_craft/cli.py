@@ -1,10 +1,12 @@
-"""CLI to install, check, and uninstall global Antigravity rules and skills across machines."""
+"""CLI to install, check, audit, and uninstall Antigravity rules and skills across machines."""
 
 from __future__ import annotations
 
 import argparse
 import shutil
 from pathlib import Path
+
+from agy_clean_craft.audit import audit_repository
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_TARGET = Path.home() / ".gemini" / "config"
@@ -51,7 +53,9 @@ def sync_customizations(target_dir: Path, source_root: Path = REPO_ROOT) -> list
 
     root_rule = target_dir / "AGENTS.md"
     existing_text = root_rule.read_text(encoding="utf-8") if root_rule.is_file() else ""
-    merged_text = _merge_managed_block(existing_text, rules_src.read_text(encoding="utf-8"))
+    merged_text = _merge_managed_block(
+        existing_text, rules_src.read_text(encoding="utf-8")
+    )
     root_rule.write_text(merged_text, encoding="utf-8")
     installed.append(root_rule)
 
@@ -76,7 +80,9 @@ def sync_customizations(target_dir: Path, source_root: Path = REPO_ROOT) -> list
     return installed
 
 
-def uninstall_customizations(target_dir: Path, source_root: Path = REPO_ROOT) -> list[Path]:
+def uninstall_customizations(
+    target_dir: Path, source_root: Path = REPO_ROOT
+) -> list[Path]:
     """Remove agy-clean-craft rules and skills from target_dir while preserving user rules."""
     removed: list[Path] = []
 
@@ -122,11 +128,11 @@ def check_status(target_dir: Path, source_root: Path = REPO_ROOT) -> dict[str, b
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(
         prog="agy-sync",
-        description="Sync global Antigravity rules and skills to ~/.gemini/config.",
+        description="Sync global Antigravity rules and skills or audit a repository.",
     )
     parser.add_argument(
         "action",
-        choices=["install", "status", "uninstall"],
+        choices=["install", "status", "uninstall", "audit"],
         nargs="?",
         default="install",
         help="Action to run (default: install).",
@@ -135,9 +141,27 @@ def main(argv: list[str] | None = None) -> int:
         "--target",
         type=Path,
         default=DEFAULT_TARGET,
-        help="Target config directory (default: ~/.gemini/config).",
+        help="Target config directory for install/status/uninstall (default: ~/.gemini/config).",
+    )
+    parser.add_argument(
+        "--repo",
+        type=Path,
+        default=Path.cwd(),
+        help="Repository root to inspect when running 'audit' (default: current directory).",
     )
     args = parser.parse_args(argv)
+
+    if args.action == "audit":
+        findings = audit_repository(args.repo)
+        if not findings:
+            print(
+                f"[LGTM] {args.repo}: zero throwaway scripts, AST slop, or README issues."
+            )
+            return 0
+        print(f"[FAIL] {len(findings)} issue(s) found in {args.repo}:")
+        for item in findings:
+            print(f"  - {item}")
+        return 1
 
     if args.action == "status":
         status = check_status(args.target)
