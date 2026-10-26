@@ -1,32 +1,38 @@
 ---
 name: readme-craft
 description: >-
-  Enforces a visual, scannable, high-utility README standard built around 3 pillars:
-  understandability (with Mermaid graphs, dataviz, or screenshots when useful),
-  easy deployment (with uv), and newcomer utility. Activate whenever creating,
-  updating, or reviewing a README.md or project overview document.
+  Crafts and audits scannable, high-signal README.md files built around 3 pillars:
+  understandability (with Mermaid diagrams, dataviz, or screenshots), zero-friction
+  deployment (with uv), and newcomer utility. Make sure to activate this skill
+  whenever creating, updating, refactoring, or reviewing a README.md, project
+  overview, or onboarding documentation, or when the user invokes "/readme-craft".
+  Don't use for inline Python docstrings or API reference auto-generation.
 ---
 
-# README Craft Skill
+# README Craft Skill (`/readme-craft`)
 
 Every `README.md` must optimize for **three goals**:
 1. **Understandability** — A reader grasps what the project does and how its pieces fit together in under 30 seconds.
 2. **Easy Deployment** — Anyone can install, configure, and run/deploy the project on the first try using `uv`.
-3. **Utility for Newcomers** — A new developer immediately knows where the entrypoints are, how to use it on a real example, and how to test/modify it.
+3. **Utility for Newcomers** — A new developer immediately knows where the entrypoints are, how to run a real example, and how to test/modify it.
 
 ---
 
-## Core Writing Rules
+## Visual Selection Decision Tree
 
-- **Cut the prose, keep the signal**: Avoid marketing fluff, filler paragraphs, or repetitive explanations. Use tables, bullet points, code blocks, and visuals instead of walls of text.
-- **Use Visuals Whenever Useful**:
-  - **Architecture / Data Flow / Pipelines**: Include a clean **Mermaid diagram** (`flowchart LR`, `flowchart TD`, `sequenceDiagram`, or `stateDiagram-v2`) showing how components interact or how data moves through the system.
-  - **Data / ML / Analytics Projects**: Include a **data visualization**, sample chart (`xychart-beta` or embedded plot image), or a concise before/after table of real outputs.
-  - **UI / CLI / Web Apps**: Include or link a **screenshot**, terminal capture, or GIF showing the actual interface or output.
-  - *Rule of thumb*: Don't force a diagram on a trivial 20-line script, but whenever there is a workflow, pipeline, multi-module architecture, data output, or UI, show it visually.
-- **Mermaid Syntax Safety**:
-  - Always quote node labels containing parentheses or special characters: `A["Parser (uv)"] --> B["Database"]`.
-  - Avoid HTML tags inside Mermaid labels.
+Choose the right visual based on what the project actually does (skip visuals only for trivial single-file scripts):
+
+| Project Type | Recommended Visual |
+| :--- | :--- |
+| **CLI / Library / Service / Pipeline** | `mermaid` diagram (`flowchart LR`, `flowchart TD`, or `sequenceDiagram`) showing data/control flow |
+| **Data Science / ML / Benchmarks** | Before/after metrics table, `xychart-beta` chart, or embedded plot (`docs/assets/*.png`) |
+| **Web App / Desktop UI / TUI** | Screenshot or short GIF showing the live interface |
+
+### Mermaid Syntax Safety (Prevent GitHub Render Failures)
+GitHub's Mermaid parser fails when node labels contain unquoted parentheses `()` or special characters. Always wrap labels in double quotes:
+- **Broken**: `A[CLI (uv)] --> B[Config ~/.gemini]`
+- **Safe**: `A["CLI (uv)"] --> B["Config (~/.gemini)"]`
+- Never put HTML tags (`<br/>`, `<b>`) inside node labels.
 
 ---
 
@@ -42,18 +48,14 @@ Adapt the sections below to the project (skip sections that don't apply, keep to
 ```
 
 ### 2. Visual Overview (When Useful)
-Include the most helpful visual for the project type:
-- **System / Pipeline Flow**:
-  ```mermaid
-  flowchart LR
-      A["Input Data"] --> B["Core Engine"]
-      B --> C["Output / API"]
-  ```
-- **Or Screenshot / DataViz**:
-  `![Overview](docs/assets/overview.png)` or a sample output table/chart.
+```mermaid
+flowchart LR
+    A["Input Data"] --> B["Core Engine (uv)"]
+    B --> C["Output / API"]
+```
 
 ### 3. Quickstart & Deployment (`uv`)
-Zero-friction commands to get running immediately:
+Provide zero-friction, copy-pasteable commands:
 ```markdown
 ## Quickstart
 
@@ -68,13 +70,12 @@ cp .env.example .env
 uv run <main-command-or-entrypoint>
 ```
 ```
-If the project deploys via Docker, systemd, or cloud CLI, include the exact 1-step deployment command right below.
 
 ### 4. Practical Usage Example
 Show **one realistic input → output example** (CLI invocation, API call, or Python snippet) so newcomers see immediate utility.
 
 ### 5. Newcomer Map (Key Files & Configuration)
-Instead of a giant `tree` dump, provide a compact table of only the files/env vars a newcomer actually cares about:
+Instead of a giant `tree` dump, provide a compact table of only the files/env vars a newcomer actually cares about. Every path listed **must exist** in the repository:
 
 | Path / Variable | Purpose |
 | :--- | :--- |
@@ -95,6 +96,8 @@ uvx ruff check . && uvx ruff format --check .
 ---
 
 ## Verification Checklist Before Finishing
-- [ ] Can a newcomer understand the architecture/flow at a glance (is a Mermaid graph, dataviz, or screenshot included if the project has a workflow, data output, or UI)?
-- [ ] Are all setup, run, and test commands copy-pasteable using `uv`?
-- [ ] Is all verbose filler removed?
+- [ ] Can a newcomer understand the architecture/flow at a glance (Mermaid graph, dataviz, or screenshot included)?
+- [ ] Are all Mermaid node labels containing parentheses wrapped in double quotes (`["..."]`)?
+- [ ] Are all setup, run, and test commands copy-pasteable using `uv` (no bare `pip install`)?
+- [ ] Does every file path in the `Newcomer Map` table actually exist on disk?
+- [ ] Is all marketing fluff and repetitive prose removed?
