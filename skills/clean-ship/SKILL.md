@@ -19,16 +19,19 @@ Follow this protocol before committing or pushing changes so the repository stay
 ```mermaid
 flowchart LR
     Start["Ready to commit / push"] --> Kind{"What changed?"}
-    Kind -->|"Code / Config / CLI"| Full["Run All 5 Steps (Sweep -> uv Lint & Test -> README -> Janitor -> Stage)"]
-    Kind -->|"Docs / README only"| Docs["Run Steps 1, 3, and 5 (Sweep -> README Check -> Explicit Stage)"]
+    Kind -->|"Code / Config / CLI"| Full["Run All 5 Steps (Audit -> uv Lint & Test -> README -> Janitor -> Stage)"]
+    Kind -->|"Docs / README only"| Docs["Run Steps 1, 3, and 5 (Audit -> README Check -> Explicit Stage)"]
 ```
 
 ---
 
-## Step 1: Workspace Sweep (Eliminate Throwaway Scripts)
-1. Run `git status --short` and `git status --ignored --short`.
-2. Delete any untracked ad-hoc scripts (`debug*.py`, `tmp*.py`, `test_quick*.py`, `verify*.py`, `check_*.py`, `dump_*.py`, `scratch*.py`), temporary JSON/CSV/HTML dumps, or log files that do not belong in the repository.
-3. Verify `.gitignore` covers `.venv/`, `__pycache__/`, `.ruff_cache/`, `.pytest_cache/`, and `.env`.
+## Step 1: Black-Box Workspace & AST Audit
+1. Run the bundled audit script as a black box (do not read its source code) alongside `git status --short`:
+   ```bash
+   python3 skills/clean-ship/scripts/audit.py --repo .
+   ```
+   *(Or `uv run agy-sync audit` if installed in the environment.)*
+2. Delete any flagged ad-hoc scripts (`debug*.py`, `tmp*.py`, `test_quick*.py`, `verify*.py`, `check_*.py`, `dump_*.py`, `scratch*.py`), fix any silent `except Exception: pass` blocks, and verify `.gitignore` covers `.venv/`, `__pycache__/`, `.ruff_cache/`, `.pytest_cache/`, and `.env`.
 
 ## Step 2: Format, Lint & Test with `uv`
 1. Format and lint Python files:
@@ -43,13 +46,12 @@ flowchart LR
 
 ## Step 3: README & Visual Check
 1. If entrypoints, architecture, CLI flags, or deployment steps changed, activate the **`readme-craft`** skill and update `README.md`.
-2. Verify that every file path listed in the `Newcomer Map` table exists on disk and that the README satisfies the 3 pillars (**Understandability**, **Easy Deployment** with `uv`, **Utility for Newcomers**).
+2. Re-run `python3 skills/clean-ship/scripts/audit.py --repo .` to confirm that every file path listed in the `Newcomer Map` table exists on disk and that all Mermaid labels with parentheses are wrapped in double quotes.
 
 ## Step 4: Independent Subagent Audit (`code-janitor`)
-For any non-trivial code change, spawn an independent review subagent using `define_subagent` and `invoke_subagent`:
+For any non-trivial code change, invoke the bundled **`code-janitor`** subagent (defined in [`agents/code-janitor.md`](../../agents/code-janitor.md)) using `invoke_subagent` (or `define_subagent` if running standalone):
 - **Name**: `code-janitor`
-- **SystemPrompt**:
-  > You are a strict Code & Documentation Janitor. Inspect `git status` and `git diff`. Flag: (1) any untracked or throwaway `.py` scripts, (2) AI code slop (dead code, unused helpers, silent `try/except Exception:` blocks, redundant comments), (3) raw `pip`/`python` commands instead of `uv`, and (4) broken file paths or unquoted Mermaid parentheses in `README.md`. Return a short bulleted list of required fixes, or `LGTM` if clean.
+- **Task**: Inspect `git status` and `git diff`, run the audit check, and return a short bulleted list of required fixes or `LGTM`.
 - Fix every issue reported by `code-janitor` before committing.
 
 ## Step 5: Explicit Stage, Commit & Push

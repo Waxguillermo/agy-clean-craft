@@ -1,0 +1,16 @@
+{
+  "clean-craft-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "write_file|run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "PYTHONPATH=src python3 -m agy_clean_craft.hooks",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
+  }
+}
