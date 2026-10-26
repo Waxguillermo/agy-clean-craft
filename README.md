@@ -92,3 +92,7 @@ uv run pytest
 uvx ruff check . && uvx ruff format --check .
 uv run agy-sync audit
 ```
+
+## License
+
+[MIT](LICENSE) © Waxguillermo

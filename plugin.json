@@ -2,6 +2,7 @@
   "name": "agy-clean-craft",
   "displayName": "AGY Clean Craft",
   "version": "0.2.0",
+  "license": "MIT",
   "description": "Enforces uv-first Python, eliminates throwaway .py scripts and AI code slop, and standardizes visual 3-pillar READMEs and pre-push code reviews.",
   "logo": "assets/logo.svg",
   "suggestedPrompts": [

@@ -3,6 +3,8 @@ name = "agy-clean-craft"
 version = "0.2.0"
 description = "Global Antigravity rules and skills for zero-slop Python (uv), visual 3-pillar READMEs, and clean git shipping."
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.11"
 dependencies = []
 

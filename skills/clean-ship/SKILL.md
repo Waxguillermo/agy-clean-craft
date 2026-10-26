@@ -28,7 +28,7 @@ flowchart LR
 ## Step 1: Black-Box Workspace & AST Audit
 1. Run the bundled audit script as a black box (do not read its source code) alongside `git status --short`:
    ```bash
-   python3 skills/clean-ship/scripts/audit.py --repo .
+   uv run python skills/clean-ship/scripts/audit.py --repo .
    ```
    *(Or `uv run agy-sync audit` if installed in the environment.)*
 2. Delete any flagged ad-hoc scripts (`debug*.py`, `tmp*.py`, `test_quick*.py`, `verify*.py`, `check_*.py`, `dump_*.py`, `scratch*.py`), fix any silent `except Exception: pass` blocks, and verify `.gitignore` covers `.venv/`, `__pycache__/`, `.ruff_cache/`, `.pytest_cache/`, and `.env`.
@@ -46,7 +46,7 @@ flowchart LR
 
 ## Step 3: README & Visual Check
 1. If entrypoints, architecture, CLI flags, or deployment steps changed, activate the **`readme-craft`** skill and update `README.md`.
-2. Re-run `python3 skills/clean-ship/scripts/audit.py --repo .` to confirm that every file path listed in the `Newcomer Map` table exists on disk and that all Mermaid labels with parentheses are wrapped in double quotes.
+2. Re-run `uv run python skills/clean-ship/scripts/audit.py --repo .` to confirm that every file path listed in the `Newcomer Map` table exists on disk and that all Mermaid labels with parentheses are wrapped in double quotes.
 
 ## Step 4: Independent Subagent Audit (`code-janitor`)
 For any non-trivial code change, invoke the bundled **`code-janitor`** subagent (defined in [`agents/code-janitor.md`](../../agents/code-janitor.md)) using `invoke_subagent` (or `define_subagent` if running standalone):
